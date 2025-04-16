@@ -24,7 +24,20 @@ export function FileCreation({ docAndNode, gen, method }: Props) {
 	const { project } = useProject()
 	const { client } = useSpyglass()
 
-	const [fileId, setFileId] = useState(gen.id === 'pack_mcmeta' ? 'pack' : '')
+	const getDefaultFileId = ()=> {
+		switch (gen.id) {
+			case 'pack_mcmeta':
+				return 'pack'
+			case 'shardborne:dungeon/mob_groups':
+				return 'category/theme/mob_groups'
+			case 'shardborne:dungeon/mob_spawning':
+				return 'category/theme/mob_spawning'
+			default:
+				return ''
+		}
+	}
+
+	const [fileId, setFileId] = useState(getDefaultFileId())
 	const [error, setError] = useState<string>()
 	
 	const changeFileId = (str: string) => {

@@ -130,8 +130,10 @@ export function ProjectPanel() {
 			switch (true) {
 				case uri.includes('theme.json'):
 					return 'shardborne:dungeon/themes'		
-				case uri.includes('mob-spawning.json'):
-					return 'shardborne:dungeon/mob-spawning'		
+				case uri.includes('mob_spawning.json'):
+					return 'shardborne:dungeon/mob_spawning'		
+				case uri.includes('mob_groups.json'):
+					return 'shardborne:dungeon/mob-groups'		
 				case uri.endsWith('/pack.mcmeta'):
 					return 'pack_mcmeta'	
 				default:
@@ -141,7 +143,6 @@ export function ProjectPanel() {
 
 		const onClick = () => {
 			const category = getCustomGenerator(uri)
-
 			const gen = config.generators.find(g => g.id === category)
 			if (!gen) {
 				throw new Error(`Cannot find generator for uri ${uri}`)

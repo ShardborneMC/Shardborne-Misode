@@ -47,6 +47,18 @@ struct GroupStruct {
 	weight: int
 }
 
+// Mob Groups
+dispatch minecraft:resource[shardborne:dungeon/mob_groups] to struct MobGroup {
+	group_name:string,
+	spawn_cost:int,
+	mobs: [MobDefinition]
+}
+
+struct MobDefinition {
+	weight:int,
+	mob_id: #[id="entity_type"] string,
+}
+
 // NPC
 dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
 	id: string,
