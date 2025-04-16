@@ -3,7 +3,7 @@ import { useLocale, useTitle } from '../contexts/index.js'
 import { useMediaQuery } from '../hooks/useMediaQuery.js'
 
 interface Props {
-	path?: string
+	path?: string;
 }
 export function Home({}: Props) {
 	const { locale } = useLocale()
@@ -13,15 +13,15 @@ export function Home({}: Props) {
 
 	return (
 		<main>
-			<div class='legacy-container'>
-				<div class='card-group'>
+			<div class="legacy-container">
+				<div class="card-group">
 					{smallScreen ? (
-						/* mobile */ <>
+					/* mobile */ <>
 							<AvailableGenerators />
 						</>
 					) : (
-						/* desktop */ <>
-							<div class='card-column'>
+					/* desktop */ <>
+							<div class="card-column">
 								<AvailableGenerators />
 							</div>
 						</>
@@ -38,31 +38,31 @@ function AvailableGenerators() {
 	return (
 		<ToolGroup
 			title={locale('generators.popular')}
-			link='/generators/'
+			link="/generators/"
 		>
 			<GeneratorCard
 				minimal
-				id='shardborne.custom_npc'
+				id="shardborne:custom_npc"
 			/>
 			<GeneratorCard
 				minimal
-				id='shardborne/dungeon/themes'
+				id="shardborne:dungeon/themes"
 			/>
 			<GeneratorCard
 				minimal
-				id='shardborne/dungeon/mob_spawning'
+				id="shardborne:dungeon/mob_spawning"
 			/>
 			<GeneratorCard
 				minimal
-				id='worldgen/processor_list'
+				id="worldgen/processor_list"
 			/>
 			<GeneratorCard
 				minimal
-				id='worldgen/template_pool'
+				id="worldgen/template_pool"
 			/>
 			<GeneratorCard
 				minimal
-				id='loot_table'
+				id="loot_table"
 			/>
 		</ToolGroup>
 	)

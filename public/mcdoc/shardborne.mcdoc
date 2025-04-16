@@ -1,0 +1,180 @@
+use ::java::data::worldgen::processor_list::ProcessorListRef
+use ::java::data::worldgen::template_pool::ElementBase
+
+// Theme
+dispatch minecraft:resource[shardborne:dungeon/themes] to struct Theme {
+	processor:  #[id="worldgen/processor_list"] string,
+	weight: float @ 1..100,
+	generation_type: ("maze" | "open_world"),
+	biome: #[id(registry="worldgen/biome")] string,
+	structures: ThemeStructureEntry,
+	theme_settings_id: string
+}
+
+struct ThemeStructureEntry {
+	[#[id="worldgen/structure"] string]: ThemeStructure
+}
+
+struct ThemeStructure {
+	min?: int,
+	max?: int,
+}
+
+
+// Template Pool
+dispatch minecraft:template_pool_element[shardborne:dungeon_pool_element] to struct TemplatePool {
+	...ElementBase,
+	location: #[id="structure"] string,
+	processors: [string],
+	allow_overlap?:boolean,
+	is_room?:boolean,
+	disable_block_replacement?:boolean,
+}
+
+
+// Mob Spawning
+dispatch minecraft:resource[shardborne:dungeon/mob_spawning] to [MobSpawningStruct]
+
+struct MobSpawningStruct {
+	id:string,
+	groups: [GroupStruct],
+	max_spawn_cost:int,
+	min_spawn_cost:int,
+}
+
+struct GroupStruct {
+	group_id:string,
+	weight: int
+}
+
+// NPC
+dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
+	id: string,
+	prerequisites?: [Preqrequisites],
+	quests: [Quests],
+	random_dialogue: [RandomDialogue]
+}
+
+struct Preqrequisites {
+	type: ("questline"|"level"),
+	...shardborne:prerequisites_type[[type]],
+}
+
+enum(string) NPCs {
+	Wisp="shardborne:wisp",
+	Meld="shardborne:meld",
+	Sage="shardborne:sage",
+	Juuno="shardborne:juuno",
+	Aldhor="shardborne:aldhor",
+}
+
+
+struct Quests {
+	id:string,
+	npc: NPCs,
+	skip_requirements?: boolean,
+	finished_dialogue?: [DialogueType],
+	initial_dialogue?: [DialogueType],
+	requirements: [Requirements],
+	satisfied_dialogue?: [DialogueType],
+	unsatisfied_dialogue: [DialogueType],
+}
+
+dispatch shardborne:prerequisites_type[level] to struct LevelRequirement {
+	level:int
+}
+dispatch shardborne:preqrequisite_type[questline] to struct QuestlineRequirement {
+	questlines:[string]
+}
+
+struct DialogueType {
+	type: ("text"|"display_item"|"give_item"|"give_recipe"),
+	...shardborne:dialogue_type[[type]],
+}
+
+dispatch shardborne:dialogue_type[text] to struct {
+	text: [string]
+}
+
+dispatch shardborne:dialogue_type[display_item] to struct {
+	text: [string],
+	item: ItemStack
+}
+
+dispatch shardborne:dialogue_type[give_item] to struct {
+	item: ItemStack
+}
+
+dispatch shardborne:dialogue_type[give_recipe] to struct {
+	recipe: #[id="recipe"] string
+}
+
+struct ItemStack {
+	id: string,
+	count?: int,
+	nbt?: #[nbt=minecraft:item[[item]]] string
+}
+
+struct Requirements {
+	type: ("carry_item"|"locate_structure"|"make_recipe"|"enter_dimension"),
+	...shardborne:requirement_type[[type]],
+}
+
+dispatch shardborne:requirement_type[carry_item, make_recipe] to struct {
+	item: ItemStack
+}
+
+dispatch shardborne:requirement_type[locate_structure] to struct {
+	structure: (#[id=(registry="worldgen/structure",tags="allowed")] string | [#[id="worldgen/structure"] string]),
+}
+
+dispatch shardborne:requirement_type[enter_dimension] to struct {
+	dimension: #[id="dimension"] string 
+}
+
+struct RandomDialogue {
+	npc: NPCs,
+	initial_dialogue: [DialogueType],
+	dialogue: [[DialogueType]]
+}
+
+// Processors
+
+dispatch minecraft:template_processor[shardborne:spawner_block_processor] to struct {
+	spawner_group:string
+}
+
+dispatch minecraft:template_processor[shardborne:block_replacement_processor] to struct {
+	input_block:#[id="block"] string,
+	output_block:#[id="block"] string,
+	probability?:float @ 0..1,
+}
+
+dispatch minecraft:template_processor[shardborne:foliage_replacement_processor] to struct {
+	input_block:#[id="block"] string,
+	output_block:#[id="block"] string,
+}
+
+dispatch minecraft:template_processor[shardborne:dungeon_room_processor] to struct {
+	target:#[id="block"] string,
+	success_replacement:#[id="block"] string,
+	fail_replacement?:#[id="block"] string,
+	min_blocks: int,
+	max_blocks: int,
+	replacement_chance: float @ 0..1,
+}
+
+// Loot Conditions
+
+dispatch minecraft:loot_condition[shardborne:dungeon_level] to struct {
+	range: LevelRange
+}
+
+dispatch minecraft:loot_condition[shardborne:dungeon_category] to struct {
+	value: string
+}
+
+struct LevelRange {
+	min?: int,
+	max?: int,
+}

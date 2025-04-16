@@ -17,36 +17,36 @@
   ],
   "generators": [
     {
-      "id": "shardborne.custom_npc",
+      "id": "shardborne:custom_npc",
       "url": "custom_npcs",
       "tags": [
         "shardborne"
       ],
       "path": "quests",
-      "schema": "shardborne:custom_npc",
+      "dependency": "shardborne",
       "minVersion": "1.20",
       "maxVersion": "1.20",
       "wiki": "https://docs.shardborne.com/Custom-NPCs/npcs/"
     },
     {
-      "id": "shardborne/dungeon/themes",
+      "id": "shardborne:dungeon/themes",
       "url": "dungeon/themes",
+      "dependency": "shardborne",
       "tags": [
         "shardborne"
       ],
-      "path": "dungeon",
-      "schema": "shardborne:theme",
+      "path": "themes",
       "minVersion": "1.20",
       "maxVersion": "1.20"
     },
     {
-      "id": "shardborne/dungeon/mob_spawning",
+      "id": "shardborne:dungeon/mob_spawning",
       "url": "dungeon/mob-spawning",
       "tags": [
         "shardborne"
       ],
-      "path": "dungeon",
-      "schema": "shardborne:mob_spawning",
+      "path": "mob_spawning",
+      "dependency": "shardborne",
       "minVersion": "1.20",
       "maxVersion": "1.20"
     },
@@ -86,7 +86,7 @@
       "tags": [
         "shardborne"
       ],
-      "schema": "loot_table",
+      "dependency": "shardborne",
       "minVersion": "1.16",
       "wiki": "https://minecraft.wiki/w/Loot_table"
     },
@@ -97,7 +97,7 @@
         "shardborne",
         "worldgen"
       ],
-      "schema": "shardborne:template_pools",
+      "dependency": "shardborne",
       "minVersion": "1.16",
       "wiki": "https://minecraft.wiki/w/Template_pool"
     },
@@ -108,7 +108,7 @@
         "shardborne",
         "worldgen"
       ],
-      "schema": "shardborne:processors",
+      "dependency": "shardborne",
       "minVersion": "1.20",
       "maxVersion": "1.20",
       "wiki": "https://minecraft.wiki/w/Processor_list"
