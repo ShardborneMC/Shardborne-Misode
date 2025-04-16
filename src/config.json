@@ -137,7 +137,7 @@
       "tags": [
         "shardborne"
       ],
-      "path": "themes",
+      "path": "dungeon",
       "minVersion": "1.20",
       "maxVersion": "1.20"
     },
@@ -147,7 +147,7 @@
       "tags": [
         "shardborne"
       ],
-      "path": "mob_spawning",
+      "path": "dungeon",
       "dependency": "shardborne",
       "minVersion": "1.20",
       "maxVersion": "1.20"

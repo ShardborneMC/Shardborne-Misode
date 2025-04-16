@@ -1,5 +1,4 @@
 import type { DocAndNode, Range } from '@spyglassmc/core'
-import { dissectUri } from '@spyglassmc/java-edition/lib/binder/index.js'
 import type { JsonNode } from '@spyglassmc/json'
 import { JsonFileNode } from '@spyglassmc/json'
 import { useCallback, useMemo } from 'preact/hooks'
@@ -7,6 +6,8 @@ import { useSpyglass } from '../../contexts/Spyglass.jsx'
 import { getRootType, simplifyType } from './McdocHelpers.js'
 import type { McdocContext } from './McdocRenderer.jsx'
 import { McdocRoot } from './McdocRenderer.jsx'
+import { getCurrentUrl } from 'preact-router'
+import { getGenerator } from '../../Utils.js'
 
 type JsonFileViewProps = {
 	docAndNode: DocAndNode,
@@ -45,6 +46,8 @@ export function JsonFileView({ docAndNode, node }: JsonFileViewProps) {
 		return { ...checkerCtx, makeEdit }
 	}, [docAndNode, service, makeEdit])
 
+	const gen = getGenerator(getCurrentUrl())
+	
 	const resourceType = useMemo(() => {
 		if (docAndNode.doc.uri.endsWith('/pack.mcmeta')) {
 			return 'pack_mcmeta'
@@ -52,8 +55,7 @@ export function JsonFileView({ docAndNode, node }: JsonFileViewProps) {
 		if (ctx === undefined) {
 			return undefined
 		}
-		const res = dissectUri(docAndNode.doc.uri, ctx)
-		return res?.category
+		return gen?.id
 	}, [docAndNode, ctx])
 
 	const mcdocType = useMemo(() => {

@@ -91,7 +91,11 @@ export async function fetchRegistries(versionId: VersionId) {
 		result.get('worldgen/structure_processor')?.push('shardborne:spawner_block_processor')
 		result.get('worldgen/structure_processor')?.push('shardborne:block_replacement_processor')
 		result.get('block')?.push(...BLOCKS)
+		result.get('item')?.push(...BLOCKS)
 		return result
+		
+		// To add your own presets, push to result
+		// result.set('shardborne:custom_npc', ["shardborne:random_test"])
 	} catch (e) {
 		throw new Error(`Error occurred while fetching registries: ${message(e)}`)
 	}
@@ -166,7 +170,6 @@ export async function fetchPreset(versionId: VersionId, registry: string, id: st
 export async function fetchAllPresets(versionId: VersionId, registry: string) {
 	console.debug(`[fetchAllPresets] ${versionId} ${registry}`)
 	const version = config.versions.find(v => v.id === versionId)!
-	await validateCache(version)
 	try {
 		const type = ['atlas', 'block_definition', 'item_definition', 'model', 'font', 'lang', 'equipment', 'post_effect'].includes(registry) ? 'assets' : 'data'
 		return new Map<string, unknown>(Object.entries(await cachedFetch(`${mcmeta(version, 'summary')}/${type}/${registry}/data.min.json`)))

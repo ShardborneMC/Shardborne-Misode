@@ -130,6 +130,8 @@ export function ProjectPanel() {
 			switch (true) {
 				case uri.includes('theme.json'):
 					return 'shardborne:dungeon/themes'		
+				case uri.includes('mob-spawning.json'):
+					return 'shardborne:dungeon/mob-spawning'		
 				case uri.endsWith('/pack.mcmeta'):
 					return 'pack_mcmeta'	
 				default:
