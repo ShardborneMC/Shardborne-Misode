@@ -32,4 +32,3 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           strip_components: 1
-          rm: true
