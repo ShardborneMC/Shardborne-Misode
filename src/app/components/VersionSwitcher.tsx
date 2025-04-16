@@ -39,6 +39,6 @@ export function VersionSwitcher({ value, allowed, hasAny, onChange, onAny }: Pro
 		{hasAny && <Btn label={locale('any_version')} onClick={onAny} active={!value} />}
 		{shownVersions.map(v => 
 			<Btn label={v.name} active={v.id === value} onClick={() => onChange(v.id)} />)}
-		{!showMore && hasMoreVersions && <Btn icon="chevron_down" label="More" onClick={e => {setShowMore(true);e.stopPropagation()}} />}
+		{/* {!showMore && hasMoreVersions && <Btn icon="chevron_down" label="More" onClick={e => {setShowMore(true);e.stopPropagation()}} />} */}
 	</BtnMenu>
 }
