@@ -403,7 +403,7 @@ const initialize: core.ProjectInitializer = async (ctx) => {
 	const versionChecksum = getVersionChecksum(version.id)
 
 	meta.registerSymbolRegistrar('mcmeta-summary', {
-		checksum: versionChecksum,
+		checksum: `${versionChecksum}-v2`,
 		registrar: je.dependency.symbolRegistrar(summary, release),
 	})
 
