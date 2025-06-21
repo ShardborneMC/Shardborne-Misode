@@ -61,7 +61,7 @@ struct MobDefinition {
 
 // NPC
 dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
-	id: string,
+	id: string @ 1..,
 	prerequisites?: [Preqrequisites],
 	quests: [Quests] @ 1..,
 	random_dialogue: [RandomDialogue] @ 1..
