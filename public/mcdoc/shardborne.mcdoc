@@ -87,7 +87,7 @@ struct Quests {
 	npc: NPCs,
 	skip_requirements?: boolean,
 	finished_dialogue?: [DialogueType],
-	initial_dialogue?: [DialogueType],
+	initial_dialogue: [DialogueType] @ 1..,
 	requirements: [Requirements] @ 1..,
 	satisfied_dialogue?: [DialogueType],
 	unsatisfied_dialogue: [DialogueType] @ 1..,
