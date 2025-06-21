@@ -63,12 +63,12 @@ struct MobDefinition {
 dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
 	id: string,
 	prerequisites?: [Preqrequisites],
-	quests: [Quests],
-	random_dialogue: [RandomDialogue]
+	quests: [Quests] @ 1..,
+	random_dialogue: [RandomDialogue] @ 1..
 }
 
 struct Preqrequisites {
-	type: ("questline"|"level"),
+	type: ("shardborne:questline"|"shardborne:level"),
 	...shardborne:prerequisites_type[[type]],
 }
 
@@ -78,46 +78,47 @@ enum(string) NPCs {
 	Sage="shardborne:sage",
 	Juuno="shardborne:juuno",
 	Aldhor="shardborne:aldhor",
+	Stooch="shardborne:stooch",
 }
 
 
 struct Quests {
-	id:string,
+	id:string @ 1..,
 	npc: NPCs,
 	skip_requirements?: boolean,
 	finished_dialogue?: [DialogueType],
 	initial_dialogue?: [DialogueType],
-	requirements: [Requirements],
+	requirements: [Requirements] @ 1..,
 	satisfied_dialogue?: [DialogueType],
 	unsatisfied_dialogue: [DialogueType],
 }
 
-dispatch shardborne:prerequisites_type[level] to struct LevelRequirement {
+dispatch shardborne:prerequisites_type[shardborne:level] to struct LevelRequirement {
 	level:int
 }
-dispatch shardborne:preqrequisite_type[questline] to struct QuestlineRequirement {
+dispatch shardborne:prerequisites_type[shardborne:questline] to struct {
 	questlines:[string]
 }
 
 struct DialogueType {
-	type: ("text"|"display_item"|"give_item"|"give_recipe"),
+	type: ("shardborne:text"|"shardborne:display_item"|"shardborne:give_item"|"shardborne:give_recipe"),
 	...shardborne:dialogue_type[[type]],
 }
 
-dispatch shardborne:dialogue_type[text] to struct {
+dispatch shardborne:dialogue_type[shardborne:text] to struct {
 	text: [string]
 }
 
-dispatch shardborne:dialogue_type[display_item] to struct {
+dispatch shardborne:dialogue_type[shardborne:display_item] to struct {
 	text: [string],
 	item: ItemStack
 }
 
-dispatch shardborne:dialogue_type[give_item] to struct {
+dispatch shardborne:dialogue_type[shardborne:give_item] to struct {
 	item: ItemStack
 }
 
-dispatch shardborne:dialogue_type[give_recipe] to struct {
+dispatch shardborne:dialogue_type[shardborne:give_recipe] to struct {
 	recipe: #[id="recipe"] string
 }
 
@@ -128,26 +129,26 @@ struct ItemStack {
 }
 
 struct Requirements {
-	type: ("carry_item"|"locate_structure"|"make_recipe"|"enter_dimension"),
+	type: ("shardborne:carry_item"|"shardborne:locate_structure"|"shardborne:make_recipe"|"shardborne:enter_dimension"),
 	...shardborne:requirement_type[[type]],
 }
 
-dispatch shardborne:requirement_type[carry_item, make_recipe] to struct {
+dispatch shardborne:requirement_type[shardborne:carry_item, shardborne:make_recipe] to struct {
 	item: ItemStack
 }
 
-dispatch shardborne:requirement_type[locate_structure] to struct {
+dispatch shardborne:requirement_type[shardborne:locate_structure] to struct {
 	structure: (#[id=(registry="worldgen/structure",tags="allowed")] string | [#[id="worldgen/structure"] string]),
 }
 
-dispatch shardborne:requirement_type[enter_dimension] to struct {
+dispatch shardborne:requirement_type[shardborne:enter_dimension] to struct {
 	dimension: #[id="dimension"] string 
 }
 
 struct RandomDialogue {
 	npc: NPCs,
-	initial_dialogue: [DialogueType],
-	dialogue: [[DialogueType]]
+	initial_dialogue: [DialogueType] @ 1..,
+	dialogue: [[DialogueType]] @ 1..
 }
 
 // Processors
