@@ -123,7 +123,7 @@ dispatch shardborne:dialogue_type[shardborne:give_recipe] to struct {
 }
 
 struct ItemStack {
-	id: string,
+	id: #[id="item"] string,
 	count?: int,
 	nbt?: #[nbt=minecraft:item[[item]]] string
 }
