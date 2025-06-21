@@ -90,7 +90,7 @@ struct Quests {
 	initial_dialogue?: [DialogueType],
 	requirements: [Requirements] @ 1..,
 	satisfied_dialogue?: [DialogueType],
-	unsatisfied_dialogue: [DialogueType],
+	unsatisfied_dialogue: [DialogueType] @ 1..,
 }
 
 dispatch shardborne:prerequisites_type[shardborne:level] to struct LevelRequirement {
