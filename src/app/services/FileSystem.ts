@@ -42,7 +42,7 @@ class BrowserEventEmitter implements core.ExternalEventEmitter {
 }
 
 export class IndexedDbFileSystem implements core.ExternalFileSystem {
-	public static readonly dbName = 'misode-spyglass-fs'
+	public static readonly dbName = 'misode-spyglass-fs_2'
 	public static readonly dbVersion = 1
 	public static readonly storeName = 'files'
 

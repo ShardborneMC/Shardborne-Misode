@@ -5,7 +5,7 @@ import { message } from '../Utils.js'
 import type { VersionId } from './Versions.js'
 import { checkVersion } from './Versions.js'
 
-const CACHE_NAME = 'misode-v2'
+const CACHE_NAME = 'misode-v3'
 const CACHE_LATEST_VERSION = 'cached_latest_version'
 const CACHE_PATCH = 'misode_cache_patch'
 
@@ -90,6 +90,7 @@ export async function fetchRegistries(versionId: VersionId) {
 		result.get('worldgen/structure_processor')?.push('shardborne:dungeon_room_processor')
 		result.get('worldgen/structure_processor')?.push('shardborne:spawner_block_processor')
 		result.get('worldgen/structure_processor')?.push('shardborne:block_replacement_processor')
+		result.get('tag/worldgen/structure')?.push('shardborne:nexus_portal')
 		result.get('block')?.push(...BLOCKS)
 		result.get('item')?.push(...BLOCKS)
 		return result
