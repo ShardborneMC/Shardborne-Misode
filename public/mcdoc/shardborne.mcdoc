@@ -3,6 +3,7 @@ use ::java::data::worldgen::template_pool::ElementBase
 use ::java::world::component::DataComponentPatch
 use ::java::data::advancement::AdvancementCriterion
 use ::java::data::util::IntRange
+use ::java::data::advancement::trigger::CompositeEntity
 
 // Theme
 dispatch minecraft:resource[shardborne:dungeon/themes] to struct Theme {
@@ -65,14 +66,10 @@ struct MobDefinition {
 // NPC
 dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
 	quests?: struct { [string] : Quests },
-	prerequisites?: [Preqrequisites],
+	prerequisites?: [Prerequisites],
 	random_dialogue?: struct {[#[id] NPCs]: RandomDialogue}
 }
 
-struct Preqrequisites {
-	type: ("shardborne:questline"|"shardborne:level"),
-	...shardborne:prerequisites_type[[type]],
-}
 
 enum(string) NPCs {
 	Wisp="shardborne:wisp",
@@ -108,7 +105,7 @@ dispatch shardborne:prerequisites_type[shardborne:questline] to struct {
 	questlines:[string]
 }
 
-type DialogueType = (string | DialogueSection)
+type DialogueType = ([string] | DialogueSection)
 
 struct DialogueSection {
 	lines: [string],
@@ -147,7 +144,7 @@ struct ItemStack {
 	components?: DataComponentPatch 
 }
 
-type Requirements = (CriterionList | CriterionAndCount)
+type Requirements = (CriterionList | CriterionAndCount | AdvancementCriterion)
 
 struct CriterionList {
 	criteria: [CriterionAndCount] @ 1..,
@@ -155,10 +152,18 @@ struct CriterionList {
 }
 
 struct CriterionAndCount {
-	...AdvancementCriterion,
+	criterion: [AdvancementCriterion],
 	/// How many times the criterion must be triggered before being considered complete
 	trigger_count?: int
 }
+
+type Prerequisites = (PrerequisitesList | AdvancementCriterion)
+
+struct PrerequisitesList {
+	criteria: [AdvancementCriterion] @ 1..,
+	grouping: [string]
+}
+
 
 dispatch shardborne:requirement_type[shardborne:carry_item, shardborne:make_recipe] to struct {
 	item: ItemStack
@@ -211,10 +216,22 @@ dispatch minecraft:loot_condition[shardborne:dungeon_category] to struct {
 }
 
 dispatch minecraft:loot_condition[shardborne:dungeon] to struct {
-	level: (int | IntRange),
+	level: IntRange,
 	themes: [#[id] string]
 }
 
 dispatch minecraft:loot_condition[shardborne:near_structure] to struct {
 	structures: (#[id=(registry="worldgen/structure",tags="allowed")] string | [#[id="worldgen/structure"] string]),
+}
+
+// Trigger Types
+
+dispatch minecraft:trigger[shardborne:player_level_up] to struct {
+	level: IntRange,
+	player?: CompositeEntity
+}
+
+dispatch minecraft:trigger[shardborne:complete_quest_line] to struct {
+	quest_lines: [string],
+	player?: CompositeEntity
 }

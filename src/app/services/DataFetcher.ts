@@ -93,6 +93,7 @@ export async function fetchRegistries(versionId: VersionId) {
 		result.get('tag/worldgen/structure')?.push('shardborne:nexus_portal')
 		result.get('block')?.push(...BLOCKS)
 		result.get('item')?.push(...BLOCKS)
+		result.get('trigger_type')?.push(...['shardborne:player_level_up','shardborne:complete_quest_line' ])
 		return result
 		
 		// To add your own presets, push to result
