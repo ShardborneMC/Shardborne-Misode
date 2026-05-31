@@ -93,7 +93,7 @@ export class SpyglassService {
   private constructor(
     public readonly version: VersionId,
     private readonly service: core.Service,
-    private readonly client: SpyglassClient
+    private readonly client: SpyglassClient,
   ) {
     service.project.on("documentUpdated", (e) => {
       const uriWatchers = this.fileWatchers.get(e.doc.uri) ?? [];
@@ -118,9 +118,9 @@ export class SpyglassService {
             handler(
               entries.flatMap((e) => {
                 return e.isFile() ? [e.name.slice(prefix.length)] : [];
-              })
+              }),
             );
-          })
+          }),
         );
       });
     };
@@ -266,8 +266,11 @@ export class SpyglassService {
     if (gen.id === "pack_mcmeta") {
       return `${UNSAVED_URI}pack.mcmeta`;
     }
+    if (gen.id === "sounds") {
+      return `${UNSAVED_URI}assets/minecraft/sounds.json`;
+    }
     const pack = gen.tags?.includes("assets") ? "assets" : "data";
-    return `${UNSAVED_URI}${pack}/draft/${genPath(gen, this.version)}/draft.json`;
+    return `${UNSAVED_URI}${pack}/draft/${genPath(gen, this.version)}/draft${gen.ext ?? ".json"}`;
   }
 
   public watchFile(uri: string, handler: (docAndNode: core.DocAndNode) => void) {
@@ -320,6 +323,10 @@ export class SpyglassService {
               world: {
                 category: "world",
               },
+              // Temporary until spyglass core is updated
+              sulfur_cube_archetype: {
+                category: "sulfur_cube_archetype",
+              },
               // Partner resources
               ...Object.fromEntries(
                 siteConfig.generators
@@ -330,7 +337,7 @@ export class SpyglassService {
                       category: gen.id,
                       pack: gen.tags?.includes("assets") ? "assets" : "data",
                     },
-                  ])
+                  ]),
               ),
             },
           },
@@ -369,7 +376,7 @@ async function decompressBall(buffer: Uint8Array, options?: { stripLevel?: numbe
       const path = options?.stripLevel === 1 ? e.filename.substring(e.filename.indexOf("/") + 1) : e.filename;
       const type = e.directory ? "dir" : "file";
       return { data, path, mtime: "", type, mode: 0 };
-    })
+    }),
   );
 }
 
@@ -378,7 +385,7 @@ async function compressBall(files: [string, string][]): Promise<Uint8Array> {
   await Promise.all(
     files.map(async ([name, data]) => {
       await writer.add(name, new zip.TextReader(data));
-    })
+    }),
   );
   return await writer.close();
 }
@@ -396,7 +403,7 @@ const initialize: core.ProjectInitializer = async (ctx) => {
     const uri: string = new core.Uri("downloads/misode-mcdoc.tar.gz", cacheRoot).toString();
     const buffer = await compressBall([["builtin.mcdoc", builtinMcdoc]]);
     await core.fileUtil.writeFile(externals, uri, buffer);
-    return { uri };
+    return { type: "tarball-file", uri };
   });
 
   meta.registerUriBinder(je.binder.uriBinder);
@@ -421,13 +428,13 @@ const initialize: core.ProjectInitializer = async (ctx) => {
   const versionChecksum = getVersionChecksum(version.id);
 
   meta.registerSymbolRegistrar("mcmeta-summary", {
-    checksum: `${versionChecksum}-v3`,
+    checksum: versionChecksum,
     registrar: je.dependency.symbolRegistrar(summary, release),
   });
 
   registerAttributes(meta, release, versions);
 
-  json.initialize(ctx);
+  json.getInitializer()(ctx);
   je.json.initialize(ctx);
   je.mcf.initialize(ctx, summary.commands, release);
   nbt.initialize(ctx);
@@ -438,20 +445,12 @@ const initialize: core.ProjectInitializer = async (ctx) => {
 // Duplicate these from spyglass for now, until they are exported separately
 function registerAttributes(meta: core.MetaRegistry, release: ReleaseVersion, versions: VersionMeta[]) {
   mcdoc.runtime.registerAttribute(meta, "since", mcdoc.runtime.attribute.validator.string, {
-    filterElement: (config, ctx) => {
-      if (!config.startsWith("1.")) {
-        ctx.logger.warn(`Invalid mcdoc attribute for "since": ${config}`);
-        return true;
-      }
+    filterElement: (config, _) => {
       return ReleaseVersion.cmp(release, config as ReleaseVersion) >= 0;
     },
   });
   mcdoc.runtime.registerAttribute(meta, "until", mcdoc.runtime.attribute.validator.string, {
-    filterElement: (config, ctx) => {
-      if (!config.startsWith("1.")) {
-        ctx.logger.warn(`Invalid mcdoc attribute for "until": ${config}`);
-        return true;
-      }
+    filterElement: (config, _) => {
       return ReleaseVersion.cmp(release, config as ReleaseVersion) < 0;
     },
   });
@@ -460,20 +459,16 @@ function registerAttributes(meta: core.MetaRegistry, release: ReleaseVersion, ve
     "deprecated",
     mcdoc.runtime.attribute.validator.optional(mcdoc.runtime.attribute.validator.string),
     {
-      mapField: (config, field, ctx) => {
+      mapField: (config, field, _) => {
         if (config === undefined) {
           return { ...field, deprecated: true };
-        }
-        if (!config.startsWith("1.")) {
-          ctx.logger.warn(`Invalid mcdoc attribute for "deprecated": ${config}`);
-          return field;
         }
         if (ReleaseVersion.cmp(release, config as ReleaseVersion) >= 0) {
           return { ...field, deprecated: true };
         }
         return field;
       },
-    }
+    },
   );
   const maxPackFormat = versions[0].data_pack_version;
   mcdoc.runtime.registerAttribute(meta, "pack_format", () => undefined, {
@@ -489,11 +484,11 @@ function registerAttributes(meta: core.MetaRegistry, release: ReleaseVersion, ve
               "expected",
               localize(
                 "mcdoc.runtime.checker.range.number",
-                localize("mcdoc.runtime.checker.range.right-inclusive", maxPackFormat)
-              )
+                localize("mcdoc.runtime.checker.range.right-inclusive", maxPackFormat),
+              ),
             ),
             node,
-            3
+            3,
           );
         }
       };

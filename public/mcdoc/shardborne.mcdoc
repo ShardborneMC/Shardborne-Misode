@@ -1,5 +1,8 @@
 use ::java::data::worldgen::processor_list::ProcessorListRef
 use ::java::data::worldgen::template_pool::ElementBase
+use ::java::world::component::DataComponentPatch
+use ::java::data::advancement::AdvancementCriterion
+use ::java::data::util::IntRange
 
 // Theme
 dispatch minecraft:resource[shardborne:dungeon/themes] to struct Theme {
@@ -61,10 +64,9 @@ struct MobDefinition {
 
 // NPC
 dispatch minecraft:resource[shardborne:custom_npc] to struct NPC {
-	id: string @ 1..,
+	quests?: struct { [string] : Quests },
 	prerequisites?: [Preqrequisites],
-	quests: [Quests] @ 1..,
-	random_dialogue: [RandomDialogue] @ 1..
+	random_dialogue?: struct {[#[id] NPCs]: RandomDialogue}
 }
 
 struct Preqrequisites {
@@ -83,14 +85,20 @@ enum(string) NPCs {
 
 
 struct Quests {
-	id:string @ 1..,
+	/// The entity id of the npc for this quest 
 	npc: NPCs,
-	skip_requirements?: boolean,
+	/// If true, this quest can be skipped ahead to if its requirements are met early. Default is false 
+	skip_ahead_if_complete?: boolean,
+	/// Dialogue for after this quest has been completed. This can be omitted as long as satisfied dialogue exists OR this isn't the last quest in the quest line with this npc
 	finished_dialogue?: [DialogueType],
+	/// The initial dialogue for the quest which will only show once - once it is complete it will show either the satisfied or unsatisfied dialogue depending on if the requirements are met
 	initial_dialogue: [DialogueType] @ 1..,
-	requirements: [Requirements] @ 1..,
+	/// The requirements for completed this quest. If omitted, the quest will complete after initial dialogue
+	requirements?: [Requirements] @ 1..,
+	/// Dialogue for once requirements are met. If omitted, the next quest will start automatically instead  
 	satisfied_dialogue?: [DialogueType],
-	unsatisfied_dialogue: [DialogueType] @ 1..,
+	/// Dialogue for after initial dialogue and before requirements are met. Can be omitted if requirements is also omitted
+	unsatisfied_dialogue?: [DialogueType] @ 1..,
 }
 
 dispatch shardborne:prerequisites_type[shardborne:level] to struct LevelRequirement {
@@ -100,45 +108,60 @@ dispatch shardborne:prerequisites_type[shardborne:questline] to struct {
 	questlines:[string]
 }
 
-struct DialogueType {
-	type: ("shardborne:text"|"shardborne:display_item"|"shardborne:give_item"|"shardborne:give_recipe"),
+type DialogueType = (string | DialogueSection)
+
+struct DialogueSection {
+	lines: [string],
+	companions?: [IDialogueCompanion],
+}
+
+struct IDialogueCompanion {
+	type: ("shardborne:display_item"|"shardborne:give_item"|"shardborne:give_recipes"|"shardborne:reveal_npc_name"|"shardborne:unlock_theme"|"shardborne:open_gui"),
 	...shardborne:dialogue_type[[type]],
 }
 
-dispatch shardborne:dialogue_type[shardborne:text] to struct {
-	text: [string]
-}
-
+/// This companion displays an `ItemStack` above the dialogue box while the player is reading its section. 
 dispatch shardborne:dialogue_type[shardborne:display_item] to struct {
-	text: [string],
-	item: ItemStack
+	 ...ItemStack
 }
 
 dispatch shardborne:dialogue_type[shardborne:give_item] to struct {
-	item: ItemStack
+	...ItemStack
 }
 
-dispatch shardborne:dialogue_type[shardborne:give_recipe] to struct {
-	recipe: #[id="recipe"] string
+dispatch shardborne:dialogue_type[shardborne:give_recipes] to struct {
+	recipes: [#[id="recipe"] string]
+}
+
+dispatch shardborne:dialogue_type[shardborne:unlock_theme] to struct {
+	theme: [#[id] string]
+}
+
+dispatch shardborne:dialogue_type[shardborne:open_gui] to struct {
+	gui: string
 }
 
 struct ItemStack {
 	id: #[id="item"] string,
 	count?: int,
-	nbt?: #[nbt=minecraft:item[[item]]] string
+	components?: DataComponentPatch 
 }
 
-struct Requirements {
-	type: ("shardborne:carry_item"|"shardborne:locate_structure"|"shardborne:make_recipe"|"shardborne:enter_dimension"),
-	...shardborne:requirement_type[[type]],
+type Requirements = (CriterionList | CriterionAndCount)
+
+struct CriterionList {
+	criteria: [CriterionAndCount] @ 1..,
+	grouping: [string]
+}
+
+struct CriterionAndCount {
+	...AdvancementCriterion,
+	/// How many times the criterion must be triggered before being considered complete
+	trigger_count?: int
 }
 
 dispatch shardborne:requirement_type[shardborne:carry_item, shardborne:make_recipe] to struct {
 	item: ItemStack
-}
-
-dispatch shardborne:requirement_type[shardborne:locate_structure] to struct {
-	structure: (#[id=(registry="worldgen/structure",tags="allowed")] string | [#[id="worldgen/structure"] string]),
 }
 
 dispatch shardborne:requirement_type[shardborne:enter_dimension] to struct {
@@ -146,9 +169,8 @@ dispatch shardborne:requirement_type[shardborne:enter_dimension] to struct {
 }
 
 struct RandomDialogue {
-	npc: NPCs,
-	initial_dialogue: [DialogueType] @ 1..,
-	dialogue: [[DialogueType]] @ 1..
+	initial?: [DialogueType] @ 1..,
+	dialogue_pool: [[DialogueType]] @ 1..
 }
 
 // Processors
@@ -181,14 +203,18 @@ dispatch minecraft:template_processor[shardborne:dungeon_room_processor] to stru
 // Loot Conditions
 
 dispatch minecraft:loot_condition[shardborne:dungeon_level] to struct {
-	range: LevelRange
+	range: IntRange
 }
 
 dispatch minecraft:loot_condition[shardborne:dungeon_category] to struct {
 	value: string
 }
 
-struct LevelRange {
-	min?: int,
-	max?: int,
+dispatch minecraft:loot_condition[shardborne:dungeon] to struct {
+	level: (int | IntRange),
+	themes: [#[id] string]
+}
+
+dispatch minecraft:loot_condition[shardborne:near_structure] to struct {
+	structures: (#[id=(registry="worldgen/structure",tags="allowed")] string | [#[id="worldgen/structure"] string]),
 }
