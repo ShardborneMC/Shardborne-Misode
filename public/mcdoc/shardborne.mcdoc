@@ -78,6 +78,7 @@ enum(string) NPCs {
 	Juuno="shardborne:juuno",
 	Aldhor="shardborne:aldhor",
 	Stooch="shardborne:stooch",
+	Ander="shardborne:ander",
 }
 
 
@@ -131,7 +132,7 @@ dispatch shardborne:dialogue_type[shardborne:give_recipes] to struct {
 }
 
 dispatch shardborne:dialogue_type[shardborne:unlock_theme] to struct {
-	theme: [#[id] string]
+	theme: string	
 }
 
 dispatch shardborne:dialogue_type[shardborne:open_gui] to struct {
@@ -152,7 +153,7 @@ struct CriterionList {
 }
 
 struct CriterionAndCount {
-	criterion: [AdvancementCriterion],
+	criterion: AdvancementCriterion,
 	/// How many times the criterion must be triggered before being considered complete
 	trigger_count?: int
 }
@@ -216,8 +217,8 @@ dispatch minecraft:loot_condition[shardborne:dungeon_category] to struct {
 }
 
 dispatch minecraft:loot_condition[shardborne:dungeon] to struct {
-	level: IntRange,
-	themes: [#[id] string]
+	level?: IntRange,
+	themes?: [#[id] string]
 }
 
 dispatch minecraft:loot_condition[shardborne:near_structure] to struct {
