@@ -2,6 +2,7 @@ use ::java::data::worldgen::processor_list::ProcessorListRef
 use ::java::data::worldgen::template_pool::ElementBase
 use ::java::world::component::DataComponentPatch
 use ::java::data::advancement::AdvancementCriterion
+use ::java::data::advancement::trigger::Conditions
 use ::java::data::util::IntRange
 use ::java::data::advancement::trigger::CompositeEntity
 
@@ -227,12 +228,12 @@ dispatch minecraft:loot_condition[shardborne:near_structure] to struct {
 
 // Trigger Types
 
-dispatch minecraft:trigger[shardborne:player_level_up] to struct {
+dispatch minecraft:trigger[shardborne:player_level_up] to Conditions<struct {
 	level: IntRange,
 	player?: CompositeEntity
-}
+}>
 
-dispatch minecraft:trigger[shardborne:complete_quest_line] to struct {
+dispatch minecraft:trigger[shardborne:complete_quest_line] to Conditions<struct {
 	quest_lines: [string],
 	player?: CompositeEntity
-}
+}>
